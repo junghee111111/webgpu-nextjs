@@ -26,6 +26,20 @@ export default function RenderByGpu() {
     context.configure({
       device: device,
       format: format,
+      alphaMode: 'opaque',
+    });
+
+    const bindGroupLayout = device.createBindGroupLayout({
+      entries: [],
+    });
+
+    const bindGroup = device.createBindGroup({
+      layout: bindGroupLayout,
+      entries: [],
+    });
+
+    const pipelineLayout = device.createPipelineLayout({
+      bindGroupLayouts: [bindGroupLayout],
     });
 
     const pipeline: GPURenderPipeline = device.createRenderPipeline({
@@ -49,7 +63,7 @@ export default function RenderByGpu() {
       primitive: {
         topology: 'triangle-list',
       },
-      layout: 'auto',
+      layout: pipelineLayout,
     });
 
     const commandEncoder: GPUCommandEncoder = device.createCommandEncoder();
@@ -67,6 +81,7 @@ export default function RenderByGpu() {
       ],
     });
     renderPass.setPipeline(pipeline);
+    renderPass.setBindGroup(0, bindGroup);
     renderPass.draw(3, 1, 0, 0);
     renderPass.end();
     device.queue.submit([commandEncoder.finish()]);
